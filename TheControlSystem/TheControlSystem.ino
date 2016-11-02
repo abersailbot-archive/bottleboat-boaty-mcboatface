@@ -59,11 +59,19 @@ void setRudder(int rudderPos) {
 
 }
 
+int getHeadingDiff (int firstHeading, int desiredHeading) { //function to find heading difference when compass heading switches between 0 and 360
+  if (firstHeading > 180) {
+    return (360 - firstHeading) + desiredHeading;
+  }else{
+    return desiredHeading - firstHeading;
+  }
+}
+
 int control(int compassHeading, int desiredHeading){
   static double integral = 0;
   static double pGain = 0.2;
   static double iGain = 0.2; 
-  double error = desiredHeading - compassHeading;
+  double error = getHeadingDiff(compassHeading, desiredHeading);
   // prevents integral windup 
   if (abs(error) < 10){
     integral = integral + error;
