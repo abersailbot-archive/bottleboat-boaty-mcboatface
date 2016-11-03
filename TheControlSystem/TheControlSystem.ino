@@ -7,6 +7,7 @@ int slaveAddress = HMC6352Address >> 1;
 const int MIDPOINT = 60;
 const int RANGE = 30;
 const int DESIREDHEADING = 50;
+const int SPEED = 128;
 
 Servo rudder;
 
@@ -16,6 +17,7 @@ void setup() {
   Serial.begin(9600);
   rudder.attach(9);
   Wire.begin();
+  analogWrite(5, SPEED);
 }
 
 
@@ -91,6 +93,8 @@ void loop() {
 
   int heading = getCompassHeading();
   int rudderpos = control(heading, DESIREDHEADING);
+
+  setRudder(MIDPOINT + rudderpos);
 
   Serial.print("Compass heading ");
   Serial.println(heading);
