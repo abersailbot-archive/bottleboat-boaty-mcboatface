@@ -5,9 +5,9 @@ int HMC6352Address = 0x42;
 
 int slaveAddress = HMC6352Address >> 1;
 int compassOffset = 120;
-const int MIDPOINT = 60;
+const int MIDPOINT = 96;
 const int RANGE = 30;
-const int DESIREDHEADING = 50;
+int DESIREDHEADING = 50;
 const int SPEED = 128;
 
 Servo rudder;
@@ -18,6 +18,9 @@ void setup() {
   Serial.begin(9600);
   rudder.attach(9);
   Wire.begin();
+  delay(5000);
+  DESIREDHEADING = wrapHeading(getCompassHeading());
+  delay(15000);
   analogWrite(5, SPEED);
 }
 
@@ -72,8 +75,8 @@ int getHeadingDiff (int firstHeading, int desiredHeading) { //function to find h
 
 int control(int compassHeading, int desiredHeading){
   static double integral = 0;
-  static double pGain = 0.8;
-  static double iGain = 0.2; 
+  static double pGain = 0.6;
+  static double iGain = 0.1; 
   double error = getHeadingDiff(compassHeading, desiredHeading);
   // prevents integral windup 
   if (abs(error) < 10){
@@ -90,7 +93,7 @@ int control(int compassHeading, int desiredHeading){
 
 int wrapHeading(int compassHeading) {
     if (compassHeading < 0) {
-      return 360 - compassHeading;
+      return 360 + compassHeading;
     } else {
       return compassHeading;
     }
@@ -109,7 +112,6 @@ void loop() {
   Serial.println(heading);
   Serial.print("Rudder position ");
   Serial.println(rudderpos);
-
   delay(500);
 
 }
