@@ -4,6 +4,7 @@
 int HMC6352Address = 0x42;
 
 int slaveAddress = HMC6352Address >> 1;
+int compassOffset = 120;
 const int MIDPOINT = 60;
 const int RANGE = 30;
 const int DESIREDHEADING = 50;
@@ -40,7 +41,7 @@ int getCompassHeading()
     compassValue += Wire.read();
   }
 
-  return compassValue / 10;
+  return (compassValue / 10) - compassOffset ;
 }
 
 
@@ -71,7 +72,7 @@ int getHeadingDiff (int firstHeading, int desiredHeading) { //function to find h
 
 int control(int compassHeading, int desiredHeading){
   static double integral = 0;
-  static double pGain = 0.2;
+  static double pGain = 0.8;
   static double iGain = 0.2; 
   double error = getHeadingDiff(compassHeading, desiredHeading);
   // prevents integral windup 
@@ -87,15 +88,23 @@ int control(int compassHeading, int desiredHeading){
   return p + i;  
 }
 
+int wrapHeading(int compassHeading) {
+    if (compassHeading < 0) {
+      return 360 - compassHeading;
+    } else {
+      return compassHeading;
+    }
+}
+
 
 
 void loop() {
 
-  int heading = getCompassHeading();
+  int heading = wrapHeading(getCompassHeading());
   int rudderpos = control(heading, DESIREDHEADING);
 
   setRudder(MIDPOINT + rudderpos);
-
+  
   Serial.print("Compass heading ");
   Serial.println(heading);
   Serial.print("Rudder position ");
@@ -104,3 +113,4 @@ void loop() {
   delay(500);
 
 }
+
